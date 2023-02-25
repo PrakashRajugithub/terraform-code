@@ -24,5 +24,5 @@ output "eipid" {
 # To get Eip Public IP
 output "public_ip" {
   # description = "Contains the public IP address"
-  value       = aws_eip.eip.public_ip
+  value = aws_eip.eip.public_ip
 }

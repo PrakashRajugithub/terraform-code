@@ -8,12 +8,12 @@
 
 
 resource "aws_vpc" "vpc" {
-  cidr_block       = "10.2.0.0/16"
-  instance_tenancy = "default"
+  cidr_block           = "10.2.0.0/16"
+  instance_tenancy     = "default"
   enable_dns_hostnames = "true"
 
   tags = {
-    Name = "stage-vpc-demo"
+    Name      = "stage-vpc-demo"
     Terraform = "True"
   }
 }
@@ -24,14 +24,14 @@ resource "aws_vpc" "vpc" {
 # # subnet--private,public,dataprivate
 # #=====Public Subnet===================#
 resource "aws_subnet" "public" {
-  vpc_id     = aws_vpc.vpc.id
-  count = length(data.aws_availability_zones.available.names)
-  cidr_block = element(var.pub_cidr, count.index)
-  availability_zone = element(data.aws_availability_zones.available.names, count.index)
+  vpc_id                  = aws_vpc.vpc.id
+  count                   = length(data.aws_availability_zones.available.names)
+  cidr_block              = element(var.pub_cidr, count.index)
+  availability_zone       = element(data.aws_availability_zones.available.names, count.index)
   map_public_ip_on_launch = "true"
 
   tags = {
-    Name = "stage-pub-subnet-demo-${count.index+1}"
+    Name      = "stage-pub-subnet-demo-${count.index + 1}"
     Terraform = "True"
   }
 }
@@ -39,14 +39,14 @@ resource "aws_subnet" "public" {
 # ======Pvt_Subnet===========
 
 resource "aws_subnet" "private" {
-  vpc_id     = aws_vpc.vpc.id
-  count = length(data.aws_availability_zones.available.names)
-  cidr_block = element(var.pvt_cidr, count.index)
+  vpc_id            = aws_vpc.vpc.id
+  count             = length(data.aws_availability_zones.available.names)
+  cidr_block        = element(var.pvt_cidr, count.index)
   availability_zone = element(data.aws_availability_zones.available.names, count.index)
   # map_public_ip_on_launch = "true"
 
   tags = {
-    Name = "stage-pvt-subnet-demo-${count.index+1}"
+    Name      = "stage-pvt-subnet-demo-${count.index + 1}"
     Terraform = "True"
   }
 }
@@ -54,14 +54,14 @@ resource "aws_subnet" "private" {
 # ======data_Pvt_Subnet===========
 
 resource "aws_subnet" "data" {
-  vpc_id     = aws_vpc.vpc.id
-  count = length(data.aws_availability_zones.available.names)
-  cidr_block = element(var.data_pvt_cidr, count.index)
+  vpc_id            = aws_vpc.vpc.id
+  count             = length(data.aws_availability_zones.available.names)
+  cidr_block        = element(var.data_pvt_cidr, count.index)
   availability_zone = element(data.aws_availability_zones.available.names, count.index)
   # map_public_ip_on_launch = "true"
 
   tags = {
-    Name = "stage-data-subnet-demo-${count.index+1}"
+    Name      = "stage-data-subnet-demo-${count.index + 1}"
     Terraform = "True"
   }
 }
@@ -75,7 +75,7 @@ resource "aws_internet_gateway" "igw" {
     Name = "stage-igw-demo"
   }
   depends_on = [
-    aws_vpc.vpc 
+    aws_vpc.vpc
   ]
 }
 
@@ -84,7 +84,7 @@ resource "aws_internet_gateway" "igw" {
 
 # Create EIP
 resource "aws_eip" "eip" {
-  vpc      = true
+  vpc = true
 
   tags = {
     Name = "stage-EIP"
@@ -100,7 +100,7 @@ resource "aws_nat_gateway" "natgw" {
   tags = {
     Name = "NATGW"
   }
-  
+
   depends_on = [
     aws_eip.eip
   ]
@@ -118,7 +118,7 @@ resource "aws_route_table" "public" {
     gateway_id = aws_internet_gateway.igw.id
   }
 
-    tags = {
+  tags = {
     Name = "Stage-Pub-RT"
   }
 }
@@ -127,11 +127,11 @@ resource "aws_route_table" "private" {
   vpc_id = aws_vpc.vpc.id
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.natgw.id
   }
 
-    tags = {
+  tags = {
     Name = "Stage-Pvt-RT"
   }
 }
@@ -140,7 +140,7 @@ resource "aws_route_table" "private" {
 # Pub subnets association
 
 resource "aws_route_table_association" "public" {
-  count = length(aws_subnet.public[*].id)
+  count          = length(aws_subnet.public[*].id)
   subnet_id      = element(aws_subnet.public[*].id, count.index)
   route_table_id = aws_route_table.public.id
 }
@@ -155,12 +155,12 @@ resource "aws_route_table_association" "public" {
 
 
 resource "aws_route_table_association" "private" {
-  count = length(aws_subnet.public[*].id)
+  count          = length(aws_subnet.public[*].id)
   subnet_id      = element(aws_subnet.private[*].id, count.index)
   route_table_id = aws_route_table.private.id
 }
 resource "aws_route_table_association" "data" {
-  count = length(aws_subnet.public[*].id)
+  count          = length(aws_subnet.public[*].id)
   subnet_id      = element(aws_subnet.data[*].id, count.index)
   route_table_id = aws_route_table.private.id
 }

@@ -1,12 +1,12 @@
 # Syntax of variables
 # ====================
-              #  *============================* 
-              #  *  variable "logicalname" {  *
-              #  *   default =                *
-              #  *   type    =                *
-              #  *  description =             *
-              #  *  }                         *
-              #  *============================* 
+#  *============================* 
+#  *  variable "logicalname" {  *
+#  *   default =                *
+#  *   type    =                *
+#  *  description =             *
+#  *  }                         *
+#  *============================* 
 
 # Example-1       || Example-2                    || Example-3
 # =============   || =============                || =============
@@ -23,15 +23,15 @@
 
 variable "pub_cidr" {
   default = ["10.2.0.0/24", "10.2.1.0/24", "10.2.2.0/24"]
-  type = list
+  type    = list(any)
 }
 
 variable "pvt_cidr" {
   default = ["10.2.3.0/24", "10.2.4.0/24", "10.2.5.0/24"]
-  type = list
+  type    = list(any)
 }
 
 variable "data_pvt_cidr" {
   default = ["10.2.6.0/24", "10.2.7.0/24", "10.2.8.0/24"]
-  type = list
+  type    = list(any)
 }
